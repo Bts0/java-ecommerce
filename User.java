@@ -118,7 +118,7 @@ public class User {
         auth_token = u;
     }
 
-    private static final validUsernameCheck(String u) {
+    private boolean validUsernameCheck(String u) {
         // If a valid username, return true.
         usernameRegex = "^[a-z]{3,15}[0-9]{0,3}";
         if (u == null) {
@@ -132,13 +132,13 @@ public class User {
         return p.matcher(u).matches();
     }
 
-    private static final validRoleCheck(String r) {
+    private boolean validRoleCheck(String r) {
         // If a valid role, return true.
         List<String> roles = Arrays.asList("Administrator", "Seller", "Customer");
         return roles.contains(r);
     }
 
-    private static final validNameCheck(String n) {
+    private boolean validNameCheck(String n) {
         // If a valid name, return true.
         nameRegex = "^[A-Z]{1}[a-z]{2,15}$";
         if (n == null) {
@@ -152,7 +152,7 @@ public class User {
         return p.matcher(e).matches();
     }
 
-    private static final validEmailCheck(String e) {
+    private boolean validEmailCheck(String e) {
         // If a valid email, return true.
         emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
                 "[a-zA-Z0-9_+&*-]+)*@" +

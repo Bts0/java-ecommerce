@@ -1,11 +1,24 @@
 import java.util.UUID;
+import javax.persistence.*;
 
+@Entity @Table(name = "products")
 public class Product {
-    private UUID uuid;
+    @Id private UUID uuid;
     private String name;
     private float price;
     private int quantity_in_stock;
     private boolean in_stock;
+
+    public Product(UUID uuid, String name, float price, int quantity) {
+        this.setUuid(uuid);
+        this.setName(name);
+        this.setQuantity_in_stock(quantity);
+        if(quantity > 0) {
+            this.setIn_stock(true);
+        } else if (quantity == 0) {
+            this.setIn_stock(false);
+        }
+    }
 
     public UUID getUuid() {
         return uuid;
@@ -51,5 +64,40 @@ public class Product {
 
     private void setIn_stock(boolean is) {
         in_stock = is;
+    }
+
+    public static void add(EntityManager em, UserTransaction ut, UUID uuid, String name, float price, int quantity) {
+        ut.begin();
+        Product product = new Product(uuid, name, price, quantity);
+        em.persist(product);
+        ut.commit();
+    }
+
+    public static List<Product> retrieveAll(EntityManager em) {
+        Query query = em.createQuery("SELECT p FROM Product p", Product.class);
+        List<Product> products = query.getResultList();
+        return products;
+    }
+
+    public static void update(EntityManager em, UserTransaction ut, UUID uuid, String name, float price, int quantity) throws Exception {
+        ut.begin();
+        Product product = em.find(Product.class, uuid);
+        if (!name.equals(product.getName())) product.setName(name);
+        if (price != product.getPrice()) product.setPrice(price);
+        if (quantity != product.getQuantity_in_stock()) product.setQuantity_in_stock(quantity);
+    }
+
+    public static void destroy(EntitityManager em, UserTransaction ut, UUID uuid) throws Exception {
+        ut.begin();
+        Product product = em.find(Product.class, uuid);
+        em.remove(product);
+        ut.commit();
+    }
+
+    public static void clearData(EntityManager em, UserTrasaction ut) throws Exception {
+        ut.begin();
+        Query deleteStatement = em.createQuery("DELETE FROM Product");
+        deleteStatement.executeUpdate();
+        ut.commit();
     }
 }
