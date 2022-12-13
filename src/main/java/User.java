@@ -1,7 +1,8 @@
-import java.util.UUID;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.util.*;
 import java.util.regex.*;
 import java.security.SecureRandom;
-import java.NoSuchAlgorithmException;
 import java.security.MessageDigest;
 
 public class User {
@@ -18,13 +19,27 @@ public class User {
 
     private String salt;
 
-    private static String getSalt() {
-        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
+    private void setSalt(String salt) {
+        this.salt = salt;
+    }
+    private String getSalt() {
+        if(salt == null) {
+            SecureRandom sr;
+            try {
+                sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            } catch (NoSuchProviderException e) {
+                throw new RuntimeException(e);
+            }
 
-        byte[] salt = new byte[16];
-        sr.nextBytes(salt);
+            byte[] salt = new byte[16];
+            sr.nextBytes(salt);
 
-        return salt.toString();
+            setSalt(salt.toString());
+            return salt.toString();
+        }
+        return salt;
     }
 
     private static String getSecurePassword(String password, String salt) {
@@ -40,12 +55,12 @@ public class User {
             }
             generatedPassword = sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            e.printStrackTrace();
+            throw new RuntimeException(e);
         }
         return generatedPassword;
     }
 
-    public setSaltedPassword(String password) {
+    public void setSaltedPassword(String password) {
         String salt = getSalt();
         saltedPassword = getSecurePassword(password, salt);
     }
@@ -120,7 +135,7 @@ public class User {
 
     private boolean validUsernameCheck(String u) {
         // If a valid username, return true.
-        usernameRegex = "^[a-z]{3,15}[0-9]{0,3}";
+        String usernameRegex = "^[a-z]{3,15}[0-9]{0,3}";
         if (u == null) {
             return false;
         }
@@ -140,7 +155,7 @@ public class User {
 
     private boolean validNameCheck(String n) {
         // If a valid name, return true.
-        nameRegex = "^[A-Z]{1}[a-z]{2,15}$";
+        String nameRegex = "^[A-Z]{1}[a-z]{2,15}$";
         if (n == null) {
             return false;
         }
@@ -149,12 +164,12 @@ public class User {
         }
 
         Pattern p = Pattern.compile(nameRegex);
-        return p.matcher(e).matches();
+        return p.matcher(n).matches();
     }
 
     private boolean validEmailCheck(String e) {
         // If a valid email, return true.
-        emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
                 "[a-zA-Z0-9_+&*-]+)*@" +
                 "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
                 "A-Z]{2,7}$";

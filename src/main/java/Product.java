@@ -3,29 +3,38 @@ import javax.persistence.*;
 
 @Entity @Table(name = "products")
 public class Product {
-    @Id private UUID uuid;
+    @Id private String uuid;
     private String name;
     private float price;
-    private int quantity_in_stock;
+    private int quantity;
     private boolean in_stock;
 
-    public Product(UUID uuid, String name, float price, int quantity) {
+    public Product() {
+        String uuid;
+        String name;
+        float price;
+        int quantity;
+        boolean in_stock = false;
+    }
+
+    public Product(UUID uuid, String name, float price, int q) {
         this.setUuid(uuid);
         this.setName(name);
-        this.setQuantity_in_stock(quantity);
-        if(quantity > 0) {
+        this.setPrice(price);
+        this.setQuantity(q);
+        if(q > 0) {
             this.setIn_stock(true);
-        } else if (quantity == 0) {
+        } else if (q == 0) {
             this.setIn_stock(false);
         }
     }
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
     public void setUuid(UUID u) {
-        uuid = u;
+        uuid = u.toString();
     }
 
     public String getName() {
@@ -44,18 +53,18 @@ public class Product {
         price = p;
     }
 
-    public int getQuantity_in_stock() {
-        return quantity_in_stock;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setQuantity_in_stock(int qis) {
+    public void setQuantity(int qis) {
         if (qis == 0) {
             setIn_stock(false);
         }
         else {
             setIn_stock(true);
         }
-        quantity_in_stock = qis;
+        quantity = qis;
     }
 
     public boolean isIn_stock() {
@@ -65,5 +74,4 @@ public class Product {
     private void setIn_stock(boolean is) {
         in_stock = is;
     }
-
 }
